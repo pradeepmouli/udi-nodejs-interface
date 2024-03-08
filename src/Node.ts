@@ -23,7 +23,9 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   commands: Commands;
   drivers: Drivers;
   hint: boolean;
-  constructor(nodeDefId: DefId, polyInterface: Interface, primary: any, address: any, name: any) {
+
+
+  private constructor(nodeDefId: DefId, polyInterface: Interface, primary: any, address: any, name: any) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)
