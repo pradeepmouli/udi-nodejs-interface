@@ -5,10 +5,10 @@
   "main": "lib/Interface.js",
   "module": "lib/Interface.js",
   "type": "module",
-  "types": "types",
+  "types": "types/Interface.d.ts",
   "scripts": {
     "linter": "eslint --ignore-path .gitignore .",
-    "build": "rimraf ./lib/* && tsc",
+    "build": "rimraf ./lib/* && rimraf ./types/* && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
