@@ -1,0 +1,18 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "Node16",
+        "moduleResolution": "Node16",
+        "outDir": "./lib",
+        "rootDir": "./src",
+        "declaration": true,
+        "declarationDir": "./types",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "strict": false,
+
+        "removeComments": false,
+        "noImplicitAny": false
+    }
+}
