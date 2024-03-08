@@ -9,7 +9,7 @@ import logger from './logger.js';
 
 export { Interface } from './Interface.js';
 // If we are connecting to Polyglot Cloud, use the PGC interface instead;
-export  default useCloud() ? require('pgc_interface') : {
+export  default {
   // Interface class for Polyglot
   Interface: await import('./Interface.js'),
   // Node class from which all nodes are extended from
