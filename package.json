@@ -2,10 +2,11 @@
   "name": "udi-interface",
   "version": "3.0.20",
   "description": "Polyglot-v3 interface for node.js",
-  "main": "lib/Interface.js",
-  "module": "lib/Interface.js",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "sourceType": "module",
   "type": "module",
-  "types": "types/Interface.d.ts",
+  "types": "types/index.d.ts",
 
   "scripts": {
     "linter": "eslint --ignore-path .gitignore .",
