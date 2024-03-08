@@ -40,7 +40,7 @@ export class Interface extends events.EventEmitter {
   id: string;
   _customdata: any;
   // All node classes have to be declared to the interface
-  constructor(declaredNodeClasses) {
+  constructor(declaredNodeClasses: typeof Node[]) {
     super();
 
     this.isCloud = false; // Allows the nodeserver to detect if using PGC

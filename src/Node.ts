@@ -3,24 +3,27 @@
 
 
 import logger from './logger.js';
+import type {Interface} from './Interface.js'
 
 // This needs to be changed in the class module that inherits class Node
 const nodeDefId = 'UNDEFINED';
 
 // This is the class all nodes have to inherit from
-export class Node {
-  id: any;
-  polyInterface: any;
+export class Node<DefId extends string, Commands extends Record<string,(message? : any) => void | Promise<void>>, Drivers extends Record<string, {value: string, uom: number, changed? : boolean}>> {
+  id: DefId;
+
+  static nodeDefId = nodeDefId;
+  polyInterface: Interface;
   primary: any;
   address: any;
   name: any;
   timeAdded: Date;
   enabled: boolean;
   added: boolean;
-  commands: {};
-  drivers: {};
+  commands: Commands;
+  drivers: Drivers;
   hint: boolean;
-  constructor(nodeDefId: any, polyInterface: any, primary: any, address: any, name: any) {
+  constructor(nodeDefId: DefId, polyInterface: Interface, primary: any, address: any, name: any) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)
@@ -42,13 +45,12 @@ export class Node {
     // Example: {
     //    DON: function(message) { ... },
     //    DOF: function(message) { ... } }
-    this.commands = {};
-
+    this.commands = {} as Commands;
     // This node's drivers.
     // Must be overridden by the children class.
     // Driver values are set when we receive a polyglot config message
     // Example:  { ST: { value: 0, uom: 51 }}.
-    this.drivers = {};
+    this.drivers = {} as Drivers;
   }
 
   getDriver(driver: string | number) {
