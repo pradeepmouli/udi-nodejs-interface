@@ -7,8 +7,8 @@ import mqtt, { MqttClient } from 'mqtt';
 import fs from 'fs';
 import logger, {errorStack} from './logger.js';
 import Queue from './Queue.js';
-import Node from './Node.js';
-import ISY from './isy.js';
+import {Node} from './Node.js';
+import {ISY} from './isy.js';
 
 // This is the interface class to Polyglot
 export class Interface extends events.EventEmitter {

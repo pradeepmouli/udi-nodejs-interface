@@ -8,7 +8,7 @@ import logger from './logger.js';
 const nodeDefId = 'UNDEFINED';
 
 // This is the class all nodes have to inherit from
-export default class Node {
+export class Node {
   id: any;
   polyInterface: any;
   primary: any;

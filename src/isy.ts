@@ -12,7 +12,7 @@ type IsyInfo = {
 	isy_password: any;
 };
 
-export default class ISY {
+export class ISY {
 	isyInfo: IsyInfo;
 	isyURL: string;
 	constructor(isyInfo : IsyInfo) {
