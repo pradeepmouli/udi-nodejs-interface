@@ -25,7 +25,7 @@ export class Interface extends events.EventEmitter {
   _queue: any;
   _messageAsyncTracking: {};
   _shuttingDown: boolean;
-  _nodeClasses: {};
+  _nodeClasses: typeof Node[];
   _nodes: {};
   _configCounter: number;
   _noticesFormatObject: boolean;
@@ -84,7 +84,7 @@ export class Interface extends events.EventEmitter {
     this._shuttingDown = false;
 
     // These are the declared nodes classes (see below)
-    this._nodeClasses = {};
+    this._nodeClasses = {} as typeof Node[];
 
     // This is our nodes with the classes applied to them
     this._nodes = {};

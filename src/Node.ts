@@ -24,14 +24,14 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   drivers: Drivers;
   hint: boolean;
 
-
-  private constructor(nodeDefId: DefId, polyInterface: Interface, primary: any, address: any, name: any) {
+ constructor(polyInterface: Interface, primary: any, address: any, name: any);
+  constructor(polyInterface: Interface, primary: any, address: any, name: any, NodeDefId?: DefId) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)
 
     // NodeDefId for this node (must match the nodedefid in the nodedef)
-    this.id = nodeDefId;
+    this.id = NodeDefId;
     this.polyInterface = polyInterface; // Handle to the polyglot interface
     this.primary = primary; // Primary node address
     this.address = address; // This node address
