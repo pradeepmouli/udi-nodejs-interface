@@ -10,7 +10,7 @@
 
   "scripts": {
     "linter": "eslint --ignore-path .gitignore .",
-    "build": "rimraf ./lib/* && rimraf ./types/* && tsc",
+    "build": "rimraf ./lib/* && rimraf ./types/* && tsc -p ./tsconfig.json --declaration",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run build"
 
