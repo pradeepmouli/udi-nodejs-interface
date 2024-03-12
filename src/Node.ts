@@ -6,13 +6,17 @@ import logger from './logger.js';
 import type {Interface} from './Interface.js'
 
 // This needs to be changed in the class module that inherits class Node
-const nodeDefId = 'UNDEFINED';
+type NodeDefId = 'UNDEFINED';
+export const nodeDefId : NodeDefId = 'UNDEFINED';
+type GenericCommands = Record<string,(message? : any) => void | Promise<void>>;
+type GenericDrivers = Record<string, {value: string, uom: number, changed? : boolean}>;
 
 // This is the class all nodes have to inherit from
-export class Node<DefId extends string, Commands extends Record<string,(message? : any) => void | Promise<void>>, Drivers extends Record<string, {value: string, uom: number, changed? : boolean}>> {
-  id: DefId;
+export class Node<P extends string = string, Commands extends GenericCommands = GenericCommands , Drivers extends GenericDrivers = GenericDrivers> {
 
-  static nodeDefId = nodeDefId;
+  id: P;
+
+  static nodeDefId: NodeDefId;
   polyInterface: Interface;
   primary: any;
   address: any;
@@ -25,17 +29,18 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   hint: boolean;
 
 
-  constructor(polyInterface: Interface, primary: any, address: any, name: any, NodeDefId?: DefId) {
+  constructor(polyInterface: Interface, primary: any, address: any, name: any, nodeDefId?: P) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)
 
     // NodeDefId for this node (must match the nodedefid in the nodedef)
-    this.id = NodeDefId;
+    this.id = nodeDefId;
     this.polyInterface = polyInterface; // Handle to the polyglot interface
     this.primary = primary; // Primary node address
     this.address = address; // This node address
     this.name = name; // This node name
+
 
     // Set when we receive the polyglot config
     this.timeAdded = new Date(); // Date at which the node was created
@@ -47,6 +52,8 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
     // Example: {
     //    DON: function(message) { ... },
     //    DOF: function(message) { ... } }
+
+
     this.commands = {} as Commands;
     // This node's drivers.
     // Must be overridden by the children class.
@@ -55,12 +62,12 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
     this.drivers = {} as Drivers;
   }
 
-  getDriver(driver: string | number) {
+  getDriver(driver: keyof Drivers) {
     return this.drivers[driver];
   }
 
   // Convert values to string
-  convertValue(driver: string | number, value: { toString: () => any; }) {
+  convertValue(driver: keyof Drivers, value: { toString: () => any; }) {
     // Converts numbers & booleans
     switch (typeof value) {
       case 'number':
@@ -81,7 +88,7 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   }
 
   // Used to set a driver to a value (example set ST to 100)
-  setDriver(driver: string, value: any, report = true, forceReport = false, uom = null) {
+  setDriver(driver: keyof Drivers, value: any, report = true, forceReport = false, uom = null) {
     // Is driver valid?
     if (driver in this.drivers &&
       'value' in this.drivers[driver] &&
@@ -111,7 +118,7 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   }
 
   // Send existing driver value to ISY
-  reportDriver(driver: string, forceReport = false) {
+  reportDriver(driver: keyof Drivers, forceReport = false) {
     // Is driver valid?
     if (driver in this.drivers) {
       if (this.drivers[driver].changed || forceReport) {
@@ -139,7 +146,7 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
     });
   }
 
-  reportCmd(command: any, value = null, uom = null) {
+  reportCmd(command: keyof Commands, value = null, uom = null) {
     const message = {
       command: [{
 		  address: this.address,
@@ -171,7 +178,7 @@ export class Node<DefId extends string, Commands extends Record<string,(message?
   // Runs one of the commands in this.commands based on cmdMessage.cmd
   // Example messageContent:
   // { address: 'node003', cmd: 'DON', value: '6', uom: '51' }
-  async runCmd(cmdMessage: { cmd: string | number; }) {
+  async runCmd(cmdMessage: { cmd: keyof Commands; }) {
     const nodeCommandFunction = this.commands[cmdMessage.cmd];
 
     if (!nodeCommandFunction) {

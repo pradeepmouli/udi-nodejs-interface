@@ -7,13 +7,11 @@
   "sourceType": "module",
   "type": "module",
   "types": "types/index.d.ts",
-
   "scripts": {
     "linter": "eslint --ignore-path .gitignore .",
     "build": "rimraf ./lib/* && rimraf ./types/* && tsc -p ./tsconfig.json --declaration",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run build"
-
   },
   "keywords": [
     "polyglot"
@@ -39,6 +37,6 @@
     "eslint": "^5.12.0",
     "eslint-config-strongloop": "^2.1.0",
     "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   }
 }

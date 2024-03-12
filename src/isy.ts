@@ -47,7 +47,7 @@ export class ISY {
 		if (API.startsWith('/')) {
 			URL = this.isyURL + API;
 		} else {
-			URL = this.isyURL + '/' + API;
+			URL = `${this.isyURL}/${API}`;
 		}
 
 		try {

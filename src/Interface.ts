@@ -538,15 +538,18 @@ export class Interface extends events.EventEmitter {
     newConfig.newParamsDetected = changedParams.length !== 0;
   }
 
-  _addNodeToList(node) {
+  _addNodeToList(node) : Node{
     // If this node does not exists yet in this._nodes, create it
-    let newNode = {};
+    let newNode = {} as Node;
     if (!this._nodes[node.address]) {
-      const NodeClass = this._nodeClasses[node.nodeDefId];
+      const NodeClass = this._nodeClasses[node.nodeDefId] /**
+       *
+       */
+
       const primary = node.primaryNode;
 
       if (NodeClass) {
-        newNode = new NodeClass(this, primary, node.address, node.name);
+        newNode = new NodeClass(this, primary, node.address, node.name, node.nodeDefId);
         this._nodes[node.address] = newNode;
       } else {
         logger.error('Config node with address %s has an invalid class %s',
@@ -604,7 +607,7 @@ export class Interface extends events.EventEmitter {
     config.nodes.forEach(function(n) {
       // const address = n.address.slice(5);
       // const address = n.address;
-      let node;
+      let node: Node;
       node = _this._addNodeToList(n);
 
       // If node did not have a valid class, we just ignore it
@@ -616,9 +619,10 @@ export class Interface extends events.EventEmitter {
           if (prop in n) {
             // logger.info('prop in n %s %s', prop, n[prop])
             if (propertyMapper[prop]) {
-              node[prop] = propertyMapper[prop](n[prop]);
+              node[prop]= propertyMapper[prop](n[prop]);
             } else {
               node[prop] = n[prop];
+              
             }
           }
         });
