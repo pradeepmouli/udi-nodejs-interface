@@ -10,6 +10,16 @@ import Queue from './Queue.js';
 import {Node} from './Node.js';
 import {ISY} from './isy.js';
 
+interface Config {
+  hasOwnProperty: any;
+  logLevel: any;
+  nodes: any;
+  customparams: {
+    [x: string]: any;
+  };
+  newParamsDetected: boolean;
+}
+
 // This is the interface class to Polyglot
 export class Interface extends events.EventEmitter {
   isCloud: boolean;
@@ -21,7 +31,7 @@ export class Interface extends events.EventEmitter {
   _mqttClient: MqttClient;
   _mqttClientConnected: boolean;
   _mqttPolyglotConnected: boolean;
-  _config: null;
+  _config: Partial<Config>;
   _queue: any;
   _messageAsyncTracking: {};
   _shuttingDown: boolean;
@@ -373,7 +383,7 @@ export class Interface extends events.EventEmitter {
   }
 
   // Handler for Polyglot messages that are queued
-  async _onMessageQueued(opt) {
+  async _onMessageQueued(opt: { messageKey: any; messageContent: any; }) {
     const _this = this;
     const messageKey = opt.messageKey;
     const messageContent = opt.messageContent;
@@ -487,7 +497,7 @@ export class Interface extends events.EventEmitter {
         case 'addnode':
           // messageContent is an array of nodes!!!
           // messageContent['address']
-          messageContent.forEach(function(msg) {
+          messageContent.forEach(function(msg: { hasOwnProperty: (arg0: string) => any; }) {
             if (msg.hasOwnProperty('address')) {
               _this._onResult(messageKey, msg);
               _this.emit('addNodeDone', msg);
@@ -524,7 +534,7 @@ export class Interface extends events.EventEmitter {
   }
 
   // Sets a newParamsDetected flag to the newConfig object
-  _setParamsDetected(oldConfig, newConfig) {
+  _setParamsDetected(oldConfig: Partial<Config>, newConfig: Partial<Config> & {newParamsDetected: boolean; }) {
     const oldConfigParamsKeys = oldConfig && oldConfig.customparams ?
       Object.keys(oldConfig.customparams) : [];
     const newConfigParamsKeys = newConfig && newConfig.customparams ?
@@ -538,7 +548,7 @@ export class Interface extends events.EventEmitter {
     newConfig.newParamsDetected = changedParams.length !== 0;
   }
 
-  _addNodeToList(node) : Node{
+  _addNodeToList(node: { address: string | number; nodeDefId: string | number; primaryNode: any; name: any; nodedef: any; }) : Node{
     // If this node does not exists yet in this._nodes, create it
     let newNode = {} as Node;
     if (!this._nodes[node.address]) {
@@ -563,7 +573,7 @@ export class Interface extends events.EventEmitter {
   }
 
   // Handler for the config message
-  _onConfig(config) {
+  _onConfig(config: Partial<Config>) {
     const _this = this;
     const isInitialConfig = !this._config;
 
@@ -622,7 +632,7 @@ export class Interface extends events.EventEmitter {
               node[prop]= propertyMapper[prop](n[prop]);
             } else {
               node[prop] = n[prop];
-              
+
             }
           }
         });
@@ -646,7 +656,7 @@ export class Interface extends events.EventEmitter {
 
     // Sets the newParamsDetected flag in the config
     logger.debug('Setting newParamsDetected flag in the config');
-    this._setParamsDetected(this._config, config);
+    this._setParamsDetected(this._config, {...config, newParamsDetected: false});
 
     // We keep track of the notices format (object or array);
     // If array, we track the keys in customData
@@ -1138,7 +1148,7 @@ export class Interface extends events.EventEmitter {
     }
   }
   // Access functions for direct ISY communication
-  ISY() {
+  ISY(): ISY {
     if (this._isyInfo) {
       return new ISY(this._isyInfo);
     }
