@@ -60,7 +60,7 @@ const fileTransport = new (DailyRotateFile)({
 
 // The lower level 'new' event is triggered anytime a new log is created.
 fileTransport.logStream.on('new', function(newFilename: any) {
-  module.exports.debug('Log file set to: %s', newFilename);
+  poly.debug('Log file set to: %s', newFilename);
   makeDebugLogLink(newFilename);
 });
 

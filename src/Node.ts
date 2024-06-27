@@ -16,7 +16,7 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
 
   id: P;
 
-  static nodeDefId: NodeDefId;
+  static nodeDefId: any;
   polyInterface: Interface;
   primary: any;
   address: any;
@@ -202,4 +202,3 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
 };
 
 // Required, so that the interface can find this Node class using the nodeDefId
-module.exports.nodeDefId = nodeDefId;

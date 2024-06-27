@@ -9,7 +9,7 @@ type GenericDrivers = Record<string, {
 }>;
 export declare class Node<P extends string = string, Commands extends GenericCommands = GenericCommands, Drivers extends GenericDrivers = GenericDrivers> {
     id: P;
-    static nodeDefId: NodeDefId;
+    static nodeDefId: any;
     polyInterface: Interface;
     primary: any;
     address: any;
