@@ -24,7 +24,7 @@ async function makeDebugLogLink(filename: string) {
   try {
     await exec(cmd);
   } catch (err) {
-    module.exports.error('Error renaming log file: %s', err.message, err.stack);
+    poly.error('Error renaming log file: %s', err.message, err.stack);
   }
 }
 
@@ -67,7 +67,7 @@ fileTransport.logStream.on('new', function(newFilename: any) {
 const transports = [ fileTransport ];
 
 // Polyinterface specific logger
-winston.loggers.add('poly', {
+const poly = winston.loggers.add('poly', {
   format: format.label({label: 'POLY'}),
   level: 'info',
   exitOnError: true,
@@ -75,7 +75,7 @@ winston.loggers.add('poly', {
 });
 
 // Node server specific logger. Will have NS: in the messages
-winston.loggers.add('ns', {
+export const ns = winston.loggers.add('ns', {
   format: format.label({label: 'NS'}),
   level: 'info',
   exitOnError: true,
@@ -83,9 +83,10 @@ winston.loggers.add('ns', {
 });
 
 // This is the main logger for polyinterface
-export default winston.loggers.get('poly')
 
-export const ns = winston.loggers.get('ns');
+
+
+//export const ns = winston.loggers.get('ns');
 // Usage: logger.errorStack(err, 'whatever %s:', variable)
 export function errorStack(err: any, ...args: any[]) {
   // Remove first argument
@@ -97,5 +98,6 @@ export function errorStack(err: any, ...args: any[]) {
     loggerArgs[0] += ' ' + err; // Example: throw 'abc_string'
   }
 
-  module.exports.error.apply(this, loggerArgs);
+  poly.error.apply(this, loggerArgs);
 }
+export default poly;
