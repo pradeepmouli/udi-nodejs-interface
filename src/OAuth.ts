@@ -32,6 +32,9 @@ export class OAuth {
   private _oauthConfigInitialized: boolean;
   private _oauthConfigOverride: OAuthConfig;
   private _refreshTimer: NodeJS.Timeout | null;
+  
+  // Constants
+  private static readonly REFRESH_BUFFER_MS = 60000; // 60 seconds
 
   constructor(polyInterface: Interface) {
     this.polyInterface = polyInterface;
@@ -114,7 +117,7 @@ export class OAuth {
 
     // Calculate refresh time (60 seconds before expiry)
     const expiryDate = new Date(expiry);
-    const refreshDate = new Date(expiryDate.getTime() - 60000);
+    const refreshDate = new Date(expiryDate.getTime() - OAuth.REFRESH_BUFFER_MS);
     const now = new Date();
 
     // If already expired, refresh immediately
@@ -204,7 +207,7 @@ export class OAuth {
     const expiry = this._oauthTokens.expiry;
 
     // If expired or expiring in less than 60 seconds, refresh
-    if (!expiry || new Date(expiry).getTime() - 60000 < Date.now()) {
+    if (!expiry || new Date(expiry).getTime() - OAuth.REFRESH_BUFFER_MS < Date.now()) {
       logger.info(`Access tokens: Token is expired since ${expiry}. Initiating refresh.`);
       // Refresh synchronously (will update tokens)
       this._oAuthTokensRefresh().catch(error => {

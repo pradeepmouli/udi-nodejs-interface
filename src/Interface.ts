@@ -20,6 +20,11 @@ interface Config {
   newParamsDetected: boolean;
 }
 
+// Constants for validation
+const VALID_NAME_PATTERN = /[^a-zA-Z0-9 _-]/g;
+const VALID_ADDRESS_PATTERN = /[^a-zA-Z0-9_]/g;
+const MAX_ADDRESS_LENGTH = 14;
+
 // This is the interface class to Polyglot
 export class Interface extends events.EventEmitter {
   isCloud: boolean;
@@ -1223,7 +1228,7 @@ export class Interface extends events.EventEmitter {
       return '';
     }
     // Remove characters that are not alphanumeric, space, dash, or underscore
-    return name.replace(/[^a-zA-Z0-9 _-]/g, '');
+    return name.replace(VALID_NAME_PATTERN, '');
   }
 
   // Remove illegal characters from node address and truncate to 14 characters
@@ -1233,8 +1238,8 @@ export class Interface extends events.EventEmitter {
       return '';
     }
     // Remove illegal characters and truncate to 14 chars
-    const cleaned = address.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
-    return cleaned.substring(0, 14);
+    const cleaned = address.replace(VALID_ADDRESS_PATTERN, '').toLowerCase();
+    return cleaned.substring(0, MAX_ADDRESS_LENGTH);
   }
 
   // Rename a node
