@@ -123,7 +123,9 @@ export class OAuth {
     // If already expired, refresh immediately
     if (refreshDate <= now) {
       logger.info(`Refresh token already expired at: ${expiry}. Attempting to renew.`);
-      this.getAccessToken();
+      this.getAccessToken().catch(error => {
+        logger.error(`Error refreshing expired token: ${error.message}`);
+      });
       return;
     }
 
@@ -131,7 +133,9 @@ export class OAuth {
     logger.info(`Refresh token will be refreshed at: ${refreshDate.toISOString()}`);
     const delay = refreshDate.getTime() - now.getTime();
     this._refreshTimer = setTimeout(() => {
-      this.getAccessToken();
+      this.getAccessToken().catch(error => {
+        logger.error(`Error in scheduled token refresh: ${error.message}`);
+      });
     }, delay);
   }
 
@@ -198,7 +202,7 @@ export class OAuth {
   }
 
   // Get the access token, refreshing if necessary
-  getAccessToken(): string {
+  async getAccessToken(): Promise<string> {
     // Check if we have tokens
     if (!this._oauthTokens.refresh_token) {
       throw new Error('Access token is not available');
@@ -209,10 +213,8 @@ export class OAuth {
     // If expired or expiring in less than 60 seconds, refresh
     if (!expiry || new Date(expiry).getTime() - OAuth.REFRESH_BUFFER_MS < Date.now()) {
       logger.info(`Access tokens: Token is expired since ${expiry}. Initiating refresh.`);
-      // Refresh synchronously (will update tokens)
-      this._oAuthTokensRefresh().catch(error => {
-        logger.error(`Error refreshing tokens: ${error.message}`);
-      });
+      // Await the refresh to ensure we have fresh tokens
+      await this._oAuthTokensRefresh();
     } else {
       logger.debug(`Access tokens: Token is still valid until ${expiry}, no need to refresh`);
     }

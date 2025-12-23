@@ -50,6 +50,9 @@ First, import and initialize the OAuth class:
 
 ```javascript
 import Polyglot from 'udi-interface';
+import axios from 'axios';
+
+const logger = Polyglot.logger;
 
 // Create your service class that extends OAuth
 class MyService extends Polyglot.OAuth {
@@ -73,7 +76,7 @@ class MyService extends Polyglot.OAuth {
   async callExternalApi(endpoint) {
     try {
       // Get the access token (will be refreshed automatically if needed)
-      const accessToken = this.getAccessToken();
+      const accessToken = await this.getAccessToken();
       
       const response = await axios.get(`https://api.example.com${endpoint}`, {
         headers: {
@@ -119,7 +122,7 @@ poly.on('config', async (config) => {
   if (config.isInitialConfig) {
     try {
       // Check if user has authenticated
-      const token = myService.getAccessToken();
+      const token = await myService.getAccessToken();
       // If we get here, we have a valid token
       discoverDevices();
     } catch (error) {
@@ -155,8 +158,10 @@ poly.on('customParams', (params) => {
 
 ## OAuth Class Methods
 
-### `getAccessToken(): string`
+### `getAccessToken(): Promise<string>`
 Gets the current access token, automatically refreshing it if expired or expiring soon. Throws an error if the user hasn't authenticated yet.
+
+**Note:** This is an async method. Always use `await` when calling it.
 
 ### `updateOauthSettings(update: OAuthConfig): void`
 Updates the OAuth configuration dynamically. Useful when users provide their own client credentials.
@@ -184,7 +189,7 @@ When calling `getAccessToken()`, catch potential errors:
 
 ```javascript
 try {
-  const token = myService.getAccessToken();
+  const token = await myService.getAccessToken();
   // Use token
 } catch (error) {
   if (error.message === 'Access token is not available') {

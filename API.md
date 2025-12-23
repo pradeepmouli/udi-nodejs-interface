@@ -500,15 +500,15 @@ Base class that all custom nodes must inherit from.
 ### Constructor
 
 ```javascript
-constructor(polyInterface, primary, address, name, nodeDefId)
+constructor(nodeDefId, polyInterface, primary, address, name)
 ```
 
 **Parameters:**
+- `nodeDefId` (string): Node definition ID
 - `polyInterface` (Interface): Interface instance
 - `primary` (string): Primary node address
 - `address` (string): This node's address
 - `name` (string): Node name
-- `nodeDefId` (string): Node definition ID
 
 ### Properties
 
@@ -679,13 +679,13 @@ oauthHandler(token) {
 #### `getAccessToken()`
 Gets the current access token, refreshing if necessary.
 
-**Returns:** string - Access token
+**Returns:** Promise<string> - Access token
 
 **Throws:** Error if not authenticated
 
 ```javascript
 try {
-  const token = this.getAccessToken();
+  const token = await this.getAccessToken();
   // Use token for API calls
 } catch (error) {
   console.error('Not authenticated');
