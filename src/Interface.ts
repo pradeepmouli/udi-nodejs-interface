@@ -599,7 +599,7 @@ export class Interface extends events.EventEmitter {
       const primary = node.primaryNode;
 
       if (NodeClass) {
-        newNode = new NodeClass(this, primary, node.address, node.name);
+        newNode = new NodeClass(node.nodeDefId, this, primary, node.address, node.name);
         this._nodes[node.address] = newNode;
       } else {
         logger.error('Config node with address %s has an invalid class %s',
