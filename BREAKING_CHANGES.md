@@ -39,7 +39,7 @@ The following features are **new additions** that don't break existing code:
 
 ### OAuth2 Support
 - `OAuth` class exported from the interface
-- New events: `oauth`, customNs` (for OAuth config)
+- New events: `oauth`, `customNs` (for OAuth config)
 - Methods: `getAccessToken()`, `updateOauthSettings()`, `getOauthSettings()`
 
 ### Webhook Support  
