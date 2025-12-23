@@ -39,6 +39,7 @@ export declare class Interface extends events.EventEmitter {
     _token: any;
     id: string;
     _customdata: any;
+    _nodesFromDb: any;
     constructor(declaredNodeClasses: typeof Node[]);
     start(): Promise<void>;
     stop(): void;
@@ -95,5 +96,22 @@ export declare class Interface extends events.EventEmitter {
     restart(): void;
     setLogLevel(level: any): void;
     ISY(): ISY;
+    getNodesFromDb(address?: string | string[] | null): any;
+    getNodeNameFromDb(address: string): any;
+    getValidName(name: string): string;
+    getValidAddress(address: string): string;
+    renameNode(address: string, newName: string): void;
+    nodes(): Generator<unknown, void, unknown>;
+    setPoll(shortPoll?: number | null, longPoll?: number | null): void;
+    setController(address: string, driver: string): void;
+    udm_alert(title: string, body: string): void;
+    webhookResponse(response: any, status?: number): void;
+    bonjour(type: string, protocol?: string, subtypes?: string[]): void;
+    getJsonProfile(options?: {
+        waitResponse?: boolean;
+    }): Promise<unknown>;
+    updateJsonProfile(profile: any, options?: {
+        waitResponse?: boolean;
+    }): Promise<unknown>;
 }
 export {};

@@ -1,6 +1,6 @@
 {
   "name": "udi-interface",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Polyglot-v3x interface for node.js",
   "main": "lib/index.js",
   "module": "lib/index.js",

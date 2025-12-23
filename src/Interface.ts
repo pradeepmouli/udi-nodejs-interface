@@ -49,6 +49,7 @@ export class Interface extends events.EventEmitter {
   _token: any;
   id: string;
   _customdata: any;
+  _nodesFromDb: any;
   // All node classes have to be declared to the interface
   constructor(declaredNodeClasses: typeof Node[]) {
     super();
@@ -123,6 +124,9 @@ export class Interface extends events.EventEmitter {
     // This is information for direct
     // Communication to the ISY
     this._isyInfo = null;
+
+    // Store nodes from database for getNodesFromDb
+    this._nodesFromDb = null;
 
     // Set this_nodeClasses correctly on startup
     const _this = this;
@@ -317,6 +321,8 @@ export class Interface extends events.EventEmitter {
       'addnode', 'customdata', 'customparams', 'notices', 'getIsyInfo',
       'getAll', 'setLogLevel', 'customtypeddata', 'customtypedparams',
       'getNsInfo', 'discover', 'nsdata', 'setController', 'oauth',
+      'webhook', 'bonjour', 'getjsonprofile', 'updatejsonprofile',
+      'removenode',
     ];
 
     delete message.node; // Ignore the node property. We no longer need it.
@@ -523,6 +529,35 @@ export class Interface extends events.EventEmitter {
           }
           break;
 
+        case 'webhook':
+          if (messageContent !== '') {
+            this.emit('webhook', messageContent);
+          }
+          break;
+
+        case 'bonjour':
+          if (messageContent !== '') {
+            this.emit('bonjour', messageContent);
+          }
+          break;
+
+        case 'getjsonprofile':
+          if (messageContent !== '') {
+            this.emit('profile', messageContent);
+          }
+          break;
+
+        case 'updatejsonprofile':
+          this.emit('updateProfileDone');
+          break;
+
+        case 'removenode':
+          // Handle node removal done event
+          if (messageContent && messageContent.address) {
+            this.emit('delNodeDone', messageContent);
+          }
+          break;
+
         default:
           logger.error('Invalid queued message %s received %o:',
             messageKey, messageContent);
@@ -576,6 +611,11 @@ export class Interface extends events.EventEmitter {
   _onConfig(config: Partial<Config>) {
     const _this = this;
     const isInitialConfig = !this._config;
+
+    // Store nodes from database on initial config for getNodesFromDb
+    if (isInitialConfig && config.nodes) {
+      this._nodesFromDb = JSON.parse(JSON.stringify(config.nodes));
+    }
 
     if (config.hasOwnProperty('logLevel')) {
       logger.error('Config has logLevel: %s', config.logLevel);
@@ -1151,6 +1191,207 @@ export class Interface extends events.EventEmitter {
   ISY(): ISY {
     if (this._isyInfo) {
       return new ISY(this._isyInfo);
+    }
+  }
+
+  // Get nodes from database (saved node information from PG3)
+  getNodesFromDb(address: string | string[] | null = null) {
+    if (!this._nodesFromDb) {
+      return null;
+    }
+
+    if (address === null) {
+      return this._nodesFromDb;
+    } else if (typeof address === 'string') {
+      return this._nodesFromDb.find((node: { address: string; }) => node.address === address);
+    } else if (Array.isArray(address)) {
+      return this._nodesFromDb.filter((node: { address: string; }) => address.includes(node.address));
+    }
+    return null;
+  }
+
+  // Get node name from database
+  getNodeNameFromDb(address: string) {
+    const node = this.getNodesFromDb(address);
+    return node ? node.name : null;
+  }
+
+  // Remove illegal characters from node name
+  getValidName(name: string): string {
+    if (typeof name !== 'string') {
+      logger.error('getValidName error: Parameter is not a string');
+      return '';
+    }
+    // Remove characters that are not alphanumeric, space, dash, or underscore
+    return name.replace(/[^a-zA-Z0-9 _-]/g, '');
+  }
+
+  // Remove illegal characters from node address and truncate to 14 characters
+  getValidAddress(address: string): string {
+    if (typeof address !== 'string') {
+      logger.error('getValidAddress error: Parameter is not a string');
+      return '';
+    }
+    // Remove illegal characters and truncate to 14 chars
+    const cleaned = address.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+    return cleaned.substring(0, 14);
+  }
+
+  // Rename a node
+  renameNode(address: string, newName: string) {
+    if (typeof address !== 'string' || typeof newName !== 'string') {
+      logger.error('renameNode error: Parameters must be strings');
+      return;
+    }
+
+    const message = {
+      renamenode: {
+        address: address,
+        name: newName
+      }
+    };
+    this.sendMessage(message, 'command');
+  }
+
+  // Generator/iterator for nodes
+  *nodes() {
+    const nodeList = Object.values(this._nodes);
+    for (const node of nodeList) {
+      yield node;
+    }
+  }
+
+  // Set short and/or long poll intervals
+  setPoll(shortPoll: number | null = null, longPoll: number | null = null) {
+    const message: any = { setpoll: {} };
+    
+    if (shortPoll !== null) {
+      message.setpoll.shortPoll = shortPoll;
+    }
+    if (longPoll !== null) {
+      message.setpoll.longPoll = longPoll;
+    }
+
+    if (shortPoll !== null || longPoll !== null) {
+      this.sendMessage(message, 'system');
+    } else {
+      logger.error('setPoll error: At least one of shortPoll or longPoll must be provided');
+    }
+  }
+
+  // Set controller node and driver for connection status
+  setController(address: string, driver: string) {
+    if (typeof address !== 'string' || typeof driver !== 'string') {
+      logger.error('setController error: Parameters must be strings');
+      return;
+    }
+
+    const message = {
+      setcontroller: {
+        address: address,
+        driver: driver
+      }
+    };
+    this.sendMessage(message, 'system');
+  }
+
+  // Send UDM alert (UD Mobile notification)
+  udm_alert(title: string, body: string) {
+    if (typeof title !== 'string' || typeof body !== 'string') {
+      logger.error('udm_alert error: Parameters must be strings');
+      return;
+    }
+
+    const message = {
+      udm: {
+        title: title,
+        body: body
+      }
+    };
+    this.sendMessage(message, 'system');
+  }
+
+  // Send response to webhook
+  webhookResponse(response: any, status: number = 200) {
+    const message = {
+      webhook: {
+        response: response,
+        status: status
+      }
+    };
+    this.sendMessage(message, 'system');
+  }
+
+  // Request bonjour/mDNS query
+  bonjour(type: string, protocol: string = '_tcp', subtypes: string[] = []) {
+    if (typeof type !== 'string' || typeof protocol !== 'string') {
+      logger.error('bonjour error: type and protocol must be strings');
+      return;
+    }
+
+    const message = {
+      bonjour: {
+        type: type,
+        protocol: protocol,
+        subtypes: subtypes
+      }
+    };
+    this.sendMessage(message, 'system');
+  }
+
+  // Get JSON profile from PG3
+  async getJsonProfile(options: { waitResponse?: boolean } = {}) {
+    const waitResponse = options.waitResponse || false;
+    const message = { getjsonprofile: {} };
+    
+    if (waitResponse) {
+      // Create a promise that will resolve when we get the profile event
+      return new Promise((resolve, reject) => {
+        const handler = (profile: any) => {
+          this.removeListener('profile', handler);
+          resolve(profile);
+        };
+        this.once('profile', handler);
+        
+        // Set a timeout
+        setTimeout(() => {
+          this.removeListener('profile', handler);
+          reject(new Error('Timeout waiting for profile response'));
+        }, 30000);
+        
+        this.sendMessage(message, 'system');
+      });
+    } else {
+      this.sendMessage(message, 'system');
+    }
+  }
+
+  // Update JSON profile
+  async updateJsonProfile(profile: any, options: { waitResponse?: boolean } = {}) {
+    const waitResponse = options.waitResponse || false;
+    const message = { 
+      updatejsonprofile: profile 
+    };
+    
+    if (waitResponse) {
+      // Create a promise that will resolve when we get the updateProfileDone event
+      return new Promise((resolve, reject) => {
+        const handler = () => {
+          this.removeListener('updateProfileDone', handler);
+          resolve(true);
+        };
+        this.once('updateProfileDone', handler);
+        
+        // Set a timeout
+        setTimeout(() => {
+          this.removeListener('updateProfileDone', handler);
+          reject(new Error('Timeout waiting for updateProfileDone response'));
+        }, 30000);
+        
+        this.sendMessage(message, 'system');
+      });
+    } else {
+      this.sendMessage(message, 'system');
     }
   }
 

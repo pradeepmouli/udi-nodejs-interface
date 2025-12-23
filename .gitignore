@@ -4,3 +4,5 @@ npm*.log
 .idea/
 package-lock.json
 .DS_Store
+lib/
+types/

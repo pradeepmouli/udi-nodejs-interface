@@ -34,6 +34,7 @@ export declare class Node<P extends string = string, Commands extends GenericCom
     query(): void;
     status(): void;
     delNode(): void;
+    rename(newName: string): void;
     runCmd(cmdMessage: {
         cmd: keyof Commands;
     }): Promise<object & Record<"then", unknown>>;

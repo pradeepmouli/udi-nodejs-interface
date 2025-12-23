@@ -175,6 +175,11 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
     this.polyInterface.delNode(this);
   }
 
+  rename(newName: string) {
+    this.polyInterface.renameNode(this.address, newName);
+    this.name = newName;
+  }
+
   // Runs one of the commands in this.commands based on cmdMessage.cmd
   // Example messageContent:
   // { address: 'node003', cmd: 'DON', value: '6', uom: '51' }
