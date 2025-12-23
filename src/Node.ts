@@ -29,7 +29,7 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
   hint: boolean;
 
 
-  constructor(polyInterface: Interface, primary: any, address: any, name: any, nodeDefId?: P) {
+  constructor(nodeDefId: P, polyInterface: Interface, primary: any, address: any, name: any) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)

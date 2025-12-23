@@ -20,7 +20,7 @@ export declare class Node<P extends string = string, Commands extends GenericCom
     commands: Commands;
     drivers: Drivers;
     hint: boolean;
-    constructor(polyInterface: Interface, primary: any, address: any, name: any, nodeDefId?: P);
+    constructor(nodeDefId: P, polyInterface: Interface, primary: any, address: any, name: any);
     getDriver(driver: keyof Drivers): Drivers[keyof Drivers];
     convertValue(driver: keyof Drivers, value: {
         toString: () => any;
