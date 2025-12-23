@@ -29,7 +29,7 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
   hint: boolean;
 
 
-  constructor(polyInterface: Interface, primary: any, address: any, name: any, nodeDefId?: P) {
+  constructor(nodeDefId: P, polyInterface: Interface, primary: any, address: any, name: any) {
 
     // Set when node is created (added to polyglot, or re-created when we
     // receive a polyglot config message after startup)
@@ -173,6 +173,11 @@ export class Node<P extends string = string, Commands extends GenericCommands = 
 
   delNode() {
     this.polyInterface.delNode(this);
+  }
+
+  rename(newName: string) {
+    this.polyInterface.renameNode(this.address, newName);
+    this.name = newName;
   }
 
   // Runs one of the commands in this.commands based on cmdMessage.cmd
