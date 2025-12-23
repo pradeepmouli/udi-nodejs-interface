@@ -3,7 +3,7 @@
 
 import logger from './logger.js';
 import type { Interface } from './Interface.js';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 interface OAuthConfig {
   auth_endpoint?: string;
