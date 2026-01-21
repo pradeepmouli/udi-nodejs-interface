@@ -1,5 +1,5 @@
 
-import logger, {errorStack} from './logger.js';
+import {errorStack} from './logger.js';
 
 // Generic promise queue (FIFO)
 export default class dataq {
