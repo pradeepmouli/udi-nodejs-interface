@@ -2,7 +2,7 @@
 import winston from 'winston'; // Logging framework
 import util from 'util';
 //const exec = util.promisify(require('child_process').exec);
-import { ChildProcess, exec as execSync} from 'child_process';
+import { exec as execSync } from 'child_process';
 const exec = util.promisify(execSync);
 
 import DailyRotateFile from 'winston-daily-rotate-file'; // Log rotation
